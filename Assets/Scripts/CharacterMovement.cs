@@ -76,8 +76,8 @@ public class CharacterMovement : MonoBehaviour
             int x = Mathf.RoundToInt(transform.position.x) + xDir;
             int y = Mathf.RoundToInt(transform.position.y) + yDir;
 
-            if (x >= 0 && x < tileMapGenerator.mapWidth && y >= 0 && y < tileMapGenerator.mapHeight &&
-                TileMapGenerator.tileDataMatrix[x, y].CanWalk)
+            /*if (x >= 0 && x < tileMapGenerator.mapWidth && y >= 0 && y < tileMapGenerator.mapHeight &&
+                TileMapGenerator.tileDataMatrix[x, y].CanWalk)*/
             {
                 targetPosition = new Vector3(x, y, transform.position.z);
                 isMoving = true;

@@ -17,12 +17,15 @@ public class TileMapGenerator : MonoBehaviour
 
     void Start()
     {
+        mapWidth = TileWorld.mapWidth;
+        mapHeight = TileWorld.mapHeight;
         Generate();
     }
 
     public TileData[,] Generate()
     {
-        tileDataMatrix = new TileData[mapWidth, mapHeight];
+
+        TileWorld.tileDataMatrix = new TileData[mapWidth, mapHeight];
         string pathToJson = "tilemap.json";
 
         if (!File.Exists(pathToJson))
@@ -35,31 +38,28 @@ public class TileMapGenerator : MonoBehaviour
                     int tileType;
                     int motes = 5;
                     int height = Mathf.FloorToInt((perlinValue - 0.5f) * 10); // Generating height between -5 to 5
-                    bool canWalk;
 
                     if (perlinValue < 0.5f)
                     {
                         tileType = 2; // Dirt
-                        canWalk = true;
                     }
                     else
                     {
                         tileType = 3; // Stone
-                        canWalk = true;
                     }
 
-                    tileDataMatrix[x, y] = new TileData(tileType, motes, height, canWalk);
+                    TileWorld.tileDataMatrix[x, y] = new TileData(tileType, motes, height);
                 }
             }
-            SaveSystem.Save(tileDataMatrix.To1DArray(), pathToJson);
+            SaveSystem.Save(TileWorld.tileDataMatrix.To1DArray(), pathToJson);
         }
         else
         {
-            tileDataMatrix = SaveSystem.Load<TileData>(pathToJson).To2DArray(mapWidth, mapHeight);
+            TileWorld.tileDataMatrix = SaveSystem.Load<TileData>(pathToJson).To2DArray(mapWidth, mapHeight);
         }
 
         LoadTilemaps();
-        return tileDataMatrix;
+        return TileWorld.tileDataMatrix;
     }
 
     /// Draw tile methods
@@ -87,7 +87,7 @@ public class TileMapGenerator : MonoBehaviour
         {
             for (int x = 0; x < mapWidth; x++)
             {
-                int tileType = tileDataMatrix[x, y].Type;
+                int tileType = TileWorld.tileDataMatrix[x, y].Type;
                 Vector3Int position = new Vector3Int(x, y, 0);
 
                 AnimatedTile tileToPlace = ChooseTileByType(tileType, x, y);
@@ -107,7 +107,7 @@ public class TileMapGenerator : MonoBehaviour
             for (int x = 0; x < mapWidth; x++)
             {
                 Vector3Int position = new Vector3Int(x, y, 0);
-                float colorValue = Mathf.InverseLerp(-5, 5, tileDataMatrix[x, y].Height) + .1f;
+                float colorValue = Mathf.InverseLerp(-5, 5, TileWorld.tileDataMatrix[x, y].Height) + .1f;
                 otherTileMap.SetColor(position, Color.Lerp(Color.black, Color.white, colorValue));
             }
         }
@@ -151,9 +151,9 @@ public class TileMapGenerator : MonoBehaviour
     {
         if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight)
         {
-            tileDataMatrix[x, y].Type = newType;
-            tileDataMatrix[x, y].Motes = newMotes;
-            tileDataMatrix[x, y].Height = newHeight;
+            TileWorld.tileDataMatrix[x, y].Type = newType;
+            TileWorld.tileDataMatrix[x, y].Motes = newMotes;
+            TileWorld.tileDataMatrix[x, y].Height = newHeight;
 
             Vector3Int position = new Vector3Int(x, y, 0);
             AnimatedTile tileToPlace = ChooseTileByType(newType, x, y);
@@ -176,7 +176,7 @@ public class TileMapGenerator : MonoBehaviour
     public void DebugApplyChanges()
     {
         ChangeTileData(debugX, debugY, debugNewType, debugNewMotes, debugNewHeight);
-        SaveSystem.Save(tileDataMatrix.To1DArray(), "tilemap.json");
+        SaveSystem.Save(TileWorld.tileDataMatrix.To1DArray(), "tilemap.json");
     }
 
 
