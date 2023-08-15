@@ -23,17 +23,10 @@ public class TileMapGenerator : MonoBehaviour
     public TileData[,] Generate()
     {
         tileDataMatrix = new TileData[mapWidth, mapHeight];
-
         string pathToJson = "tilemap.json";
 
-        if (File.Exists(pathToJson))
+        if (!File.Exists(pathToJson))
         {
-            //LoadFromJson(); // Load from JSON if the file exists
-            tileDataMatrix = SaveSystem.Load<TileData>(pathToJson).To2DArray(mapWidth, mapHeight);
-        }
-        else
-        {
-            // Generate the tile map if the file does not exist
             for (int x = 0; x < mapWidth; x++)
             {
                 for (int y = 0; y < mapHeight; y++)
@@ -41,15 +34,10 @@ public class TileMapGenerator : MonoBehaviour
                     float perlinValue = Mathf.PerlinNoise(x / scale, y / scale);
                     int tileType;
                     int motes = 5;
-                    int height = 0;
+                    int height = Mathf.FloorToInt((perlinValue - 0.5f) * 10); // Generating height between -5 to 5
                     bool canWalk;
 
-                    if (perlinValue < 0.33f)
-                    {
-                        tileType = 1; // Water
-                        canWalk = false;
-                    }
-                    else if (perlinValue < 0.66f)
+                    if (perlinValue < 0.5f)
                     {
                         tileType = 2; // Dirt
                         canWalk = true;
@@ -57,15 +45,17 @@ public class TileMapGenerator : MonoBehaviour
                     else
                     {
                         tileType = 3; // Stone
-                        canWalk = false;
+                        canWalk = true;
                     }
-
 
                     tileDataMatrix[x, y] = new TileData(tileType, motes, height, canWalk);
                 }
             }
-            //SaveToJson(); // Save to JSON
             SaveSystem.Save(tileDataMatrix.To1DArray(), pathToJson);
+        }
+        else
+        {
+            tileDataMatrix = SaveSystem.Load<TileData>(pathToJson).To2DArray(mapWidth, mapHeight);
         }
 
         LoadTilemaps();
@@ -107,7 +97,23 @@ public class TileMapGenerator : MonoBehaviour
                     otherTileMap.SetTile(position, tileToPlace);
             }
         }
+        UpdateTileColors();
     }
+
+    public void UpdateTileColors()
+    {
+        for (int y = 0; y < mapHeight; y++)
+        {
+            for (int x = 0; x < mapWidth; x++)
+            {
+                Vector3Int position = new Vector3Int(x, y, 0);
+                float colorValue = Mathf.InverseLerp(-5, 5, tileDataMatrix[x, y].Height) + .1f;
+                otherTileMap.SetColor(position, Color.Lerp(Color.black, Color.white, colorValue));
+            }
+        }
+    }
+
+
     AnimatedTile ChooseTileByType(int tileType, int x, int y)
     {
         float variationValue = Mathf.PerlinNoise(x / scale, y / scale);
@@ -148,8 +154,19 @@ public class TileMapGenerator : MonoBehaviour
             tileDataMatrix[x, y].Type = newType;
             tileDataMatrix[x, y].Motes = newMotes;
             tileDataMatrix[x, y].Height = newHeight;
+
+            Vector3Int position = new Vector3Int(x, y, 0);
+            AnimatedTile tileToPlace = ChooseTileByType(newType, x, y);
+            if (newType == 1) // Water
+                waterTileMap.SetTile(position, tileToPlace);
+            else
+                otherTileMap.SetTile(position, tileToPlace);
+
+            // Update colors if height has changed
+            UpdateTileColors();
         }
     }
+
     // 2.) Debugging
     public int debugX;
     public int debugY;
@@ -159,7 +176,6 @@ public class TileMapGenerator : MonoBehaviour
     public void DebugApplyChanges()
     {
         ChangeTileData(debugX, debugY, debugNewType, debugNewMotes, debugNewHeight);
-        LoadTilemaps();
         SaveSystem.Save(tileDataMatrix.To1DArray(), "tilemap.json");
     }
 
