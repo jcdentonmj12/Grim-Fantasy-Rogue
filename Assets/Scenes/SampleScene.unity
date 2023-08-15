@@ -272,7 +272,7 @@ Animator:
   m_GameObject: {fileID: 253767310}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 61b4437dded8fda47b20e55f87f3bd65, type: 2}
+  m_Controller: {fileID: 9100000, guid: baa6e3951074a4e56995fa22aefb6587, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -324,7 +324,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 2098552343, guid: 1b7d72ffa9a06224eb867d88dc35c6bc, type: 3}
+  m_Sprite: {fileID: -1902509317, guid: c94b85ff4215a47a1b8161331a649b0b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -774,11 +774,12 @@ MonoBehaviour:
   mapWidth: 50
   mapHeight: 50
   scale: 10
+  tileSize: 32
   waterTileMap: {fileID: 15690236}
   otherTileMap: {fileID: 837160105}
   waterTiles: []
   dirtTiles: []
-  treeTiles: []
+  stoneTiles: []
   debugX: 3
   debugY: 1
   debugNewType: 1

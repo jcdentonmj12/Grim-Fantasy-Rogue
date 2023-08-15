@@ -68,7 +68,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ReflectionTex:
-        m_Texture: {fileID: 2800000, guid: 81a9a018921105a429f53601e7135a6c, type: 3}
+        m_Texture: {fileID: 2800000, guid: d603faef1600f2347b6c766a6a614ab7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -76,7 +76,7 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
-    - _DistortionScale: 0.05
+    - _DistortionScale: 0.15
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -88,8 +88,8 @@ Material:
     - _PPU: 64
     - _Parallax: 0.02
     - _PixelsPerUnit: 64
-    - _ReflectionAmount: 0.5
-    - _ShimmerAmount: 0.186
+    - _ReflectionAmount: 0.66
+    - _ShimmerAmount: 0.56
     - _ShimmerFrequency: 3
     - _ShimmerSpeed: 0.1
     - _ShimmerStrength: 1

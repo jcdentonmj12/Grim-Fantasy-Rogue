@@ -8,9 +8,9 @@ public class TileMapGenerator : MonoBehaviour
 {
     public int mapWidth = 50;
     public int mapHeight = 50;
-    public float scale = 10f; // Scale of the noise
+    public float scale = 3f; // Scale of the noise
     public static TileData[,] tileDataMatrix; // Matrix of TileData objects
-
+    public float tileSize = 1f;
 
     public Tilemap waterTileMap;
     public Tilemap otherTileMap; 
@@ -28,7 +28,8 @@ public class TileMapGenerator : MonoBehaviour
 
         if (File.Exists(pathToJson))
         {
-            LoadFromJson(); // Load from JSON if the file exists
+            //LoadFromJson(); // Load from JSON if the file exists
+            tileDataMatrix = SaveSystem.Load<TileData>(pathToJson).To2DArray(mapWidth, mapHeight);
         }
         else
         {
@@ -55,7 +56,7 @@ public class TileMapGenerator : MonoBehaviour
                     }
                     else
                     {
-                        tileType = 3; // Tree
+                        tileType = 3; // Stone
                         canWalk = false;
                     }
 
@@ -63,7 +64,8 @@ public class TileMapGenerator : MonoBehaviour
                     tileDataMatrix[x, y] = new TileData(tileType, motes, height, canWalk);
                 }
             }
-            SaveToJson(); // Save to JSON
+            //SaveToJson(); // Save to JSON
+            SaveSystem.Save(tileDataMatrix.To1DArray(), pathToJson);
         }
 
         LoadTilemaps();
@@ -74,7 +76,7 @@ public class TileMapGenerator : MonoBehaviour
 
     public AnimatedTile[] waterTiles;
     public AnimatedTile[] dirtTiles;
-    public AnimatedTile[] treeTiles;
+    public AnimatedTile[] stoneTiles;
 
     void LoadTiles(ref AnimatedTile[] tiles, string basePath, int count)
     {
@@ -87,9 +89,9 @@ public class TileMapGenerator : MonoBehaviour
 
     void LoadTilemaps()
     {
-        LoadTiles(ref waterTiles, "Tiles/WaterTile", 1); // Assumes 3 water variations
+        LoadTiles(ref waterTiles, "Tiles/WaterTile", 1); // Assumes 1 water variations
         LoadTiles(ref dirtTiles, "Tiles/DirtTile", 2); // Assumes 2 dirt variations
-        LoadTiles(ref treeTiles, "Tiles/TreeTile", 2); // Assumes 1 tree variation
+        LoadTiles(ref stoneTiles, "Tiles/StoneTile", 2); // Assumes 2 Stone variation
 
         for (int y = 0; y < mapHeight; y++)
         {
@@ -120,55 +122,22 @@ public class TileMapGenerator : MonoBehaviour
                 tiles = dirtTiles;
                 break;
             case 3:
-                tiles = treeTiles;
+                tiles = stoneTiles;
                 break;
             default:
-                return null; // Return null or a default tile if an invalid type is encountered
+                return null;
         }
 
-        int index = Mathf.FloorToInt(variationValue * tiles.Length);
+        int index = Random.Range(0, tiles.Length);
+        // Debugging information
+        if (tileType == 3) // Only log for stone tiles
+        {
+            Debug.Log($"At coordinates (x: {x}, y: {y}), variationValue: {variationValue}, index: {index}");
+        }
+
         return tiles[index];
     }
 
-    /// Json methods
-
-    void SaveToJson()
-    {
-        TileData[] flatArray = new TileData[mapWidth * mapHeight];
-        int index = 0;
-        for (int x = 0; x < mapWidth; x++)
-        {
-            for (int y = 0; y < mapHeight; y++)
-            {
-                flatArray[index] = tileDataMatrix[x, y];
-                index++;
-            }
-        }
-
-        TileDataList dataList = new TileDataList { TileDataArray = flatArray };
-        string jsonData = JsonUtility.ToJson(dataList, true);
-
-        string pathToJson = "tilemap.json"; // Provide the correct path
-        File.WriteAllText(pathToJson, jsonData);
-    }
-
- 
-
-    void LoadFromJson()
-    {
-        string pathToJson = "tilemap.json"; // Provide the correct path
-        string jsonData = File.ReadAllText(pathToJson);
-        TileDataList dataList = JsonUtility.FromJson<TileDataList>(jsonData);
-        int index = 0;
-        for (int x = 0; x < mapWidth; x++)
-        {
-            for (int y = 0; y < mapHeight; y++)
-            {
-                tileDataMatrix[x, y] = dataList.TileDataArray[index];
-                index++;
-            }
-        }
-    }
 
     /// Mutate tile methods
     // 1. Changing Particular Tile Fields
@@ -191,7 +160,7 @@ public class TileMapGenerator : MonoBehaviour
     {
         ChangeTileData(debugX, debugY, debugNewType, debugNewMotes, debugNewHeight);
         LoadTilemaps();
-        SaveToJson();
+        SaveSystem.Save(tileDataMatrix.To1DArray(), "tilemap.json");
     }
 
 
